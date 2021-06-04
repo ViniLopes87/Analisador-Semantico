@@ -9,6 +9,11 @@ public class Parser {
 	private Token token;
 	
 	LinkedList<String> tabela = new LinkedList<String>();
+	LinkedList<String> tabelaVariavel = new LinkedList<String>();
+	LinkedList<String> tabelaTipo = new LinkedList<String>();
+	
+	String textoId;
+	int index;
 
 	public Parser(Scanner scanner) {
 		this.scanner = scanner;
@@ -60,6 +65,8 @@ public class Parser {
 		if(token.getText().compareTo("int") != 0 && token.getText().compareTo("float") != 0 && token.getText().compareTo("char") != 0) {
 			throw new SyntaxException("Type Expected!");
 		}
+		
+		tabela.add(token.getText());
 	}
 	
 	public void id() {
@@ -68,11 +75,11 @@ public class Parser {
 			throw new SyntaxException("Identifier Expected!");
 		}
 		
-		if(tabela.contains(token.getText()) == true) {
+		if(tabelaVariavel.contains(token.getText()) == true) {
 			throw new SyntaxException("Variavel '" + token.getText() + "' repetida!");
 		}
 		
-		tabela.add(token.getText());
+		tabelaVariavel.add(token.getText());
 	}
 	
 	public void comando() {
@@ -130,8 +137,8 @@ public class Parser {
 		if(token.getType() != Token.TK_IDENTIFIER) {
 			throw new SyntaxException("Identifier Expected!");
 		}
-		
-		if(tabela.contains(token.getText()) == false) {
+		textoId = token.getText();
+		if(tabelaVariavel.contains(token.getText()) == false) {
 			throw new SyntaxException("Variavel '" + token.getText() + "' nao declarada!");
 		}
 		token = scanner.nextToken();
@@ -139,6 +146,37 @@ public class Parser {
 			throw new SyntaxException("Atribuidor Expected!");
 		}
 		expr_arit();
+		if(tabelaTipo.contains(Token.TK_CHAR) && tabelaTipo.contains(Token.TK_FLOAT)) {
+			throw new SyntaxException("Tipo 'char' incompativel com tipo 'float'!");
+		}
+		else if(tabelaTipo.contains(Token.TK_CHAR) && tabelaTipo.contains(Token.TK_INTEIRO)) {
+			throw new SyntaxException("Tipo 'char' incompativel com tipo 'inteiro'!");
+		}
+		else if(tabelaTipo.contains(Token.TK_FLOAT) && tabelaTipo.contains(Token.TK_INTEIRO) && tabelaTipo.contains(Token.TK_CHAR) == false) {
+			index = tabelaVariavel.indexOf(textoId);
+			if(tabela.get(index).compareTo("float") != 0) {
+				throw new SyntaxException("Invalid type identifier: float expected!");
+			}
+		}
+		else if(tabelaTipo.contains(Token.TK_FLOAT) && tabelaTipo.contains(Token.TK_CHAR) == false) {
+			index = tabelaVariavel.indexOf(textoId);
+			if(tabela.get(index).compareTo("float") != 0) {
+				throw new SyntaxException("Invalid type identifier: float expected!");
+			}
+		}
+		else if(tabelaTipo.contains(Token.TK_INTEIRO) && tabelaTipo.contains(Token.TK_CHAR) == false) {
+			index = tabelaVariavel.indexOf(textoId);
+			if(tabela.get(index).compareTo("char") == 0) {
+				throw new SyntaxException("Invalid type identifier: int expected or float expected!");
+			}
+		}
+		else {
+			index = tabelaTipo.indexOf(textoId);
+			if(tabelaVariavel.get(index).compareTo("char") != 0) {
+				throw new SyntaxException("Invalid type identifier: char expected!");
+			}
+		}
+		tabelaTipo.clear();
 		if(token.getType() != Token.TK_CARACTER_especial_pontovirgula) {
 			throw new SyntaxException("Ponto e virgula Expected!");
 		}
@@ -312,8 +350,12 @@ public class Parser {
 				throw new SyntaxException("Terminal Expected!");
 			}
 			
-			if(token.getType() == Token.TK_IDENTIFIER && tabela.contains(token.getText()) == false) {
+			if(token.getType() == Token.TK_IDENTIFIER && tabelaVariavel.contains(token.getText()) == false) {
 				throw new SyntaxException("Variavel '" + token.getText() + "' nao declarada!");
+			}
+			
+			if(token.getType() == Token.TK_FLOAT || token.getType() == Token.TK_INTEIRO || token.getType() == Token.TK_CHAR) {
+				tabelaTipo.add(token.getType());
 			}
 		}
 	}
