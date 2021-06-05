@@ -230,6 +230,8 @@ public class Parser {
 			}
 		}
 		else {
+			String idAnterior;
+			
 			token = scanner.nextToken();
 			if(token.getType() != Token.TK_CARACTER_especial_abre_parenteses) {
 				throw new SyntaxException("Abre parentese Expected!");
@@ -238,6 +240,10 @@ public class Parser {
 			if(token.getType() != Token.TK_IDENTIFIER) {
 				throw new SyntaxException("Identifier Expected!");
 			}
+			if(tabelaVariavel.contains(token.getText()) == false) {
+				throw new SyntaxException("Variavel '" + token.getText() + "' nao declarada!");
+			}
+			textoId = token.getText();
 			token = scanner.nextToken();
 			if(token.getType() != Token.TK_OPERATOR_atribuidor) {
 				throw new SyntaxException("Atribuidor Expected!");
@@ -245,6 +251,21 @@ public class Parser {
 			token = scanner.nextToken();
 			if(token.getType() != Token.TK_FLOAT && token.getType() != Token.TK_INTEIRO && token.getType() != Token.TK_CHAR) {
 				throw new SyntaxException("Terminal Expected!");
+			}
+			index = tabelaVariavel.indexOf(textoId);
+			if(token.getType() != tabela.get(index)) {
+				if(token.getType().compareToIgnoreCase("character") == 0 && tabela.get(index).compareTo("float") == 0) {
+					throw new SyntaxException("Tipo 'float' incompativel com tipo 'char'!");
+				}
+				else if(token.getType().compareToIgnoreCase("character") == 0 && tabela.get(index).compareTo("int") == 0) {
+					throw new SyntaxException("Tipo 'int' incompativel com tipo 'char'!");
+				}
+				else if(token.getType().compareToIgnoreCase("inteiro") == 0 && tabela.get(index).compareTo("char") == 0) {
+					throw new SyntaxException("Tipo 'char' incompativel com tipo 'int'!");
+				}
+				else if(token.getType().compareToIgnoreCase("float") == 0 && tabela.get(index).compareTo("int") == 0) {
+					throw new SyntaxException("Tipo 'int' incompativel com tipo 'float'!");
+				}
 			}
 			token = scanner.nextToken();
 			if(token.getType() != Token.TK_CARACTER_especial_pontovirgula) {
@@ -258,6 +279,14 @@ public class Parser {
 			if(token.getType() != Token.TK_IDENTIFIER) {
 				throw new SyntaxException("Identifier Expected!");
 			}
+			if(tabelaVariavel.contains(token.getText()) == false) {
+				throw new SyntaxException("Variavel '" + token.getText() + "' nao declarada!");
+			}
+			idAnterior = token.getText();
+			index = tabelaVariavel.indexOf(idAnterior);
+			if(tabela.get(index).compareTo("char") == 0) {
+				throw new SyntaxException("Tipo 'char' incompativel com tipo 'int'!");
+			}
 			token = scanner.nextToken();
 			if(token.getType() != Token.TK_OPERATOR_atribuidor) {
 				throw new SyntaxException("Atribuidor Expected!");
@@ -265,6 +294,9 @@ public class Parser {
 			token = scanner.nextToken();
 			if(token.getType() != Token.TK_IDENTIFIER) {
 				throw new SyntaxException("Identifier Expected!");
+			}
+			if(idAnterior.compareTo(token.getText()) != 0) {
+				throw new SyntaxException("Previous different identifier!");
 			}
 			token = scanner.nextToken();
 			if(token.getType() != Token.TK_OPERATOR_aritmetrico_divisao && token.getType() != Token.TK_OPERATOR_aritmetrico_mais && token.getType() != Token.TK_OPERATOR_aritmetrico_menos && token.getType() != Token.TK_OPERATOR_aritmetrico_multiplicacao) {
